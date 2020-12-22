@@ -1,0 +1,47 @@
+---
+title: "Estadística descriptiva"
+subtitle: "Técnicas estadísticas avanzadas para la conservación de la biodiversidad - Universidad de Huelva"
+author: "David García Callejas"
+date: "01/2021"
+output:
+  beamer_presentation:
+    theme: "metropolis"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warnings = FALSE, message = FALSE)
+```
+
+## ¿Para qué sirve la estadística? (UHU)
+
+Para responder preguntas como:
+
+>- ¿Cuál es la probabilidad de que ocurra un evento?
+>- ¿X influencia a Y? ¿en qué magnitud?
+>- ¿Podemos predecir X conociendo Y? ¿Cómo de buenas son nuestras predicciones?
+
+## ¿Para qué sirve la estadística?
+
+![](figuras/001_tree_seeds.png)
+
+## Poblaciones y muestras
+
+>- edades (ejemplo UHU)
+>- pequeño ejercicio
+>- errores de muestreo, sesgos (Fig 1.2.2 WS)
+>- muestreos aleatorios (ejercicio en R)
+
+## Medidas muestrales
+
+>- tendencias centrales: media, mediana, moda (R)
+>- dispersión: min/max, cuantiles, desviación típica, error estándar, coeficiente de variación, intervalos de confianza (R)
+>- desviación típica y error estándar (R)
+>- intervalos de confianza (R)
+
+## Representaciones gráficas
+
+>- histogramas/distribuciones (distribucion de frecuencias)
+>- boxplots
+>- correlaciones según tipo de variables (WS)
+
+## Diseño experimental

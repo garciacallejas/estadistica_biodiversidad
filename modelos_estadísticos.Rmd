@@ -1,0 +1,45 @@
+---
+title: "Estadística descriptiva"
+subtitle: "Técnicas estadísticas avanzadas para la conservación de la biodiversidad - Universidad de Huelva"
+author: "David García Callejas"
+date: "01/2021"
+output:
+  beamer_presentation:
+    theme: "metropolis"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warnings = FALSE, message = FALSE)
+```
+
+## test de hipótesis
+
+>- diferencias entre dos poblaciones (R, ver masterUPO R_S1)
+>- p-valor
+>- tipos de errores
+>- ¿diferencias entre más de dos poblaciones? (WS p575 )
+
+## regresión estadística
+
+>- marco general (UHU, WS p671)
+>- residuos (WS p689)
+>- distribucion normal
+>- datos paco trees, primer lm
+>- visualización
+>- ajuste
+>- interpretación y comunicación de resultados (incluyendo effect sizes)
+>- validación (asunciones)
+>- predicción
+>- tipos de variables independientes (continuas y categóricas)
+>- selección de modelos (R2)
+
+## Generalized linear models
+
+>- distribuciones continuas y discretas
+>- likelihood (WS p814)
+>- esquema general: distribución de residuos, fórmula, función de enlace
+>- regresión logística (WS p701)
+>- regresión de conteos (poisson, negbin)
+>- selección de modelos (AIC)
+
+
