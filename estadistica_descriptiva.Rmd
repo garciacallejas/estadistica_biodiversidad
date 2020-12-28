@@ -246,32 +246,141 @@ SD = \sqrt{\frac{\sum_{i=1}^N (x_i - \mu)}{N -1}}
 ```{r}
 sd(pob$height,na.rm = TRUE)
 ```
-    
-    
+
+## Poblaciones y muestras
+
+```{r eval=FALSE}
+n1 <- rnorm(500,0,0.5)
+n2 <- rnorm(500,0,5)
+
+compara <- data.frame(n1 = n1, n2 = n2)
+compara.long <- pivot_longer(compara,cols = n1:n2)
+compara.plot <- ggplot(compara.long,aes(x = value, color = name)) + 
+  geom_density() + 
+  theme_bw()
+```
+
+## Poblaciones y muestras
+
+```{r echo=FALSE}
+n1 <- rnorm(500,0,0.5)
+n2 <- rnorm(500,0,5)
+
+compara <- data.frame(n1 = n1, n2 = n2)
+compara.long <- pivot_longer(compara,cols = n1:n2)
+ggplot(compara.long,aes(x = value, color = name)) + 
+  geom_density() + 
+  theme_bw()
+```
+
 ## Poblaciones y muestras
 
 * Medidas de dispersión
-    + error estándar asociado a la media
+    + error estándar asociado a la media:
+    
+    Mientras que la desviación típica cuantifica la dispersión de una población, el error estándar mide la incertidumbre de la media asociada a una muestra:
+    
+\begin{equation}
+SE = \frac{\sigma}{\sqrt{N}}
+\end{equation}    
+    
+## Poblaciones y muestras
+
+Población:
+
+```{r}
+head(alturas)
+```
+
+Para una muestra determinada, el error estándar será más alto cuanto menor sea el tamaño muestral
+
+```{r}
+muestra_peq <- sample(alturas, size = 5)
+sd(muestra_peq,na.rm = TRUE)/sqrt(5)
+```
+```{r}
+muestra_gran <- sample(alturas, size = 50)
+sd(muestra_gran,na.rm = TRUE)/sqrt(50)
+```
 
 ## Poblaciones y muestras
 
 https://gallery.shinyapps.io/sampling_and_stderr/
     
-<!-- ![](figuras/002_sampling_error.png) -->
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","media_sd_se.png"))
+```
 
-<!-- >- edades (ejemplo UHU) -->
-<!-- >- pequeño ejercicio -->
-<!-- >- errores de muestreo, sesgos (Fig 1.2.2 WS) -->
-<!-- >- muestreos aleatorios (ejercicio en R) -->
-<!-- >- *datos: altura alumnos, earthquakes, starwars height/mass* -->
+## Poblaciones y muestras
 
-## Medidas muestrales
+En una distribución normal:
 
->- tendencias centrales: media, mediana, moda (R)
->- dispersión: min/max, cuantiles, desviación típica, error estándar, coeficiente de variación, intervalos de confianza (R)
->- desviación típica y error estándar (R)
->- intervalos de confianza (R)
->- *datos: altura alumnos, earthquakes, starwars height/mass*
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","desviacion_tipica_normal.png"))
+```
+
+## Poblaciones y muestras
+
+* Medidas de dispersión
+    + intervalos de confianza:
+    
+Dan una estima del rango de valores plausibles para una medida muestral, generalmente la media. Vienen asociados a un valor de "confianza", que suele ser el 95% (por razones históricas). La interpretación de un intervalo de confianza es poco intuitiva: 
+    
+**El 95% de intervalos de confianza calculados a partir de muestras de la población contendrán el valor real de la media**
+
+>- Esto NO quiere decir que la media real de la población esté con un 95% de probabilidad en un intervalo determinado.
+
+## Poblaciones y muestras
+
+https://rpsychologist.com/d3/ci/
+
+## Poblaciones y muestras
+
+¿Cómo se calcula un intervalo de confianza para una media muestral?
+
+1. Número de observaciones $n$
+2. Media muestral $\bar{x}$
+3. Desviación típica de la muestra $\sigma$
+4. Nivel de confianza (p.ej. 95%)
+
+Con estos ingredientes, podemos calcular el intervalo alrededor de la media:
+
+\begin{equation}
+CI = \bar{x} \pm Z \frac{\sigma}{\sqrt{n}}
+\end{equation}
+
+## Poblaciones y muestras
+
+Ejemplo:
+
+\begin{align*}
+n & = 50 \\
+\bar{x} & = 4.3 \\
+\sigma & = 0.6 \\ 
+CI & = 4.3 \pm 1.96 \frac{0.6}{\sqrt{50}} = [4.133,4.466]
+\end{align*}
+
+Todo bien, pero... ¿de dónde sale ese 1.96?
+
+## Poblaciones y muestras
+
+Para una distribución normal estándar ($\mu = 0, \sigma = 1$), el 95% de los datos está comprendido entre -1.96 y 1.96. 
+
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","intervalo_confianza_normal.png"))
+```
+
+## Poblaciones y muestras
+
+El valor de Z para cualquier porcentaje se puede consultar en tablas estándar (e.g. [aquí](https://www.math.arizona.edu/~jwatkins/normal-table.pdf)). Hoy día, afortunadamente, no es necesario calcular intervalos de confianza a mano.
+
+## Poblaciones y muestras
+
+Calcular intervalos de confianza de la media de una muestra en R:
+
+```{r}
+t.test(alturas,conf.level = .95)
+```
 
 ## Representaciones gráficas
 

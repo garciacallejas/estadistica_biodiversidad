@@ -35,6 +35,8 @@ set.seed(42)
 
 ## regresión estadística
 
+https://bookdown.org/speegled/foundations-of-statistics/
+
 >- marco general (UHU, WS p671)
 >- residuos (WS p689)
 >- distribucion normal
