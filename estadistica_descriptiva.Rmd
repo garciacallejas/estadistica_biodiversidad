@@ -6,30 +6,264 @@ date: "01/2021"
 output:
   beamer_presentation:
     theme: "metropolis"
+    highlight: zenburn
+fontsize: 10pt
+header-includes:
+- \usepackage{caption}
+- \captionsetup[figure]{labelformat=empty}
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warnings = FALSE, message = FALSE)
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, message = FALSE, size = "small")
+library(tidyverse)
+library(patchwork)
+set.seed(42)
 ```
 
-## ¿Para qué sirve la estadística? (UHU)
+## Estadística descriptiva
 
-Para responder preguntas como:
-
->- ¿Cuál es la probabilidad de que ocurra un evento?
->- ¿X influencia a Y? ¿en qué magnitud?
->- ¿Podemos predecir X conociendo Y? ¿Cómo de buenas son nuestras predicciones?
-
-## ¿Para qué sirve la estadística?
-
-![](figuras/001_tree_seeds.png)
+>- Poblaciones y muestras
+>- Representaciones gráficas
 
 ## Poblaciones y muestras
 
->- edades (ejemplo UHU)
->- pequeño ejercicio
->- errores de muestreo, sesgos (Fig 1.2.2 WS)
->- muestreos aleatorios (ejercicio en R)
+* Población: todos los alumnos del máster
+* Muestra poblacional: 3 alumnos al azar de la población
+
+```{r echo=TRUE,results='hide',fig.show='hide'}
+edades <- sample(25:40,size = 10,replace = TRUE)
+hist(edades)
+```
+
+## Poblaciones y muestras
+
+```{r echo=FALSE}
+hist(edades)
+```
+
+## Poblaciones y muestras
+
+```{r echo=TRUE,results='hide',fig.show='hide'}
+muestra_edades <- sample(edades,
+                         size = 3,
+                         replace = FALSE)
+hist(muestra_edades)
+```
+
+## Poblaciones y muestras
+
+```{r echo=FALSE}
+hist(muestra_edades)
+```
+
+## Poblaciones y muestras
+
+Leer datos de una población
+
+```{r}
+pob <- read.csv2(here::here("datasets",
+                            "starwars_info_personajes.csv"))
+alturas <- pob$height
+```
+
+Obtener una muestra de esa población
+
+```{r}
+muestra_alturas_1 <- sample(alturas,
+                            size = 10,
+                            replace = FALSE)
+muestra_alturas_2 <- alturas[1:10]
+```
+
+Estimar la representatividad de esa muestra
+
+```{r eval=FALSE}
+hist(muestra_alturas_1,breaks = 10)
+hist(muestra_alturas_2,breaks = 10)
+hist(alturas,breaks = 10)
+```
+
+## Poblaciones y muestras
+
+```{r echo=FALSE}
+hist(muestra_alturas_1,breaks = 10)
+```
+
+## Poblaciones y muestras
+
+```{r echo=FALSE}
+hist(muestra_alturas_2,breaks = 10)
+```
+
+## Poblaciones y muestras
+
+```{r echo=FALSE}
+hist(alturas,breaks = 10)
+```
+
+## Poblaciones y muestras
+
+>- Las propiedades de una medida en una población se describen con una serie de medidas:
+>    + de centralidad: media, mediana, moda
+>    + de dispersión: varianza, desviación típica
+    
+>- En estadística, aplicamos estas medidas a las muestras como estimaciones de la
+población total.
+
+## Poblaciones y muestras
+
+Las medidas muestrales están influenciadas por el error de muestreo. Esto provoca errores de exactitud (sesgos o *bias*) y de precisión (*variance*):
+
+```{r echo=FALSE, out.width="60%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","002_sampling_error.png"))
+```
+
+## Poblaciones y muestras
+
+* Media de una población o muestra:
+
+\begin{equation}
+    \bar{x} = \frac{\sum_{i=1}^N x_i}{N}
+\end{equation}
+
+## Poblaciones y muestras
+
+**Ejercicio**
+
+Usando los datos *earthquakes.csv*, calcula:
+
+1. La magnitud media de los terremotos incluidos.
+2. La magnitud media de una muestra de 10 terremotos.
+3. La diferencia entre la media poblacional y la media muestral.
+
+## Poblaciones y muestras
+
+```{r}
+eq <- read.csv2(here::here("datasets",
+                           "earthquakes.csv"))
+pop.mean <- mean(eq$magnitude)
+pop.mean
+```
+
+```{r}
+sample.eq <- sample(eq$magnitude,
+                    size = 10,
+                    replace = FALSE)
+sample.mean <- mean(sample.eq)
+sample.mean
+```
+
+La diferencia entre la media poblacional y la media muestral es de `r pop.mean - sample.mean`
+
+## Poblaciones y muestras
+
+* Mediana: el valor que deja a cada lado el 50% de los datos
+
+```{r}
+median(eq$magnitude)
+```
+
+* Moda: el valor más repetido
+
+```{r}
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+Mode(eq$magnitude)
+```
+
+## Poblaciones y muestras
+
+```{r eval=FALSE}
+ggplot(eq, aes(x=magnitude)) +
+    geom_histogram(binwidth=.25, colour="black", fill="white") +
+    geom_vline(aes(xintercept=mean(magnitude, na.rm=T)),  
+               color="black", size=1) +
+    geom_vline(aes(xintercept=median(magnitude, na.rm=T)),   
+               color="darkred", linetype="dashed", size=1) +
+    geom_vline(aes(xintercept=Mode(magnitude)),  
+               color="darkgreen", linetype="dotted", size=1) 
+```
+
+## Poblaciones y muestras
+
+* Media: negro
+* Mediana: rojo
+* Moda: verde
+
+```{r echo=FALSE, out.width="90%"}
+ggplot(eq, aes(x=magnitude)) +
+    geom_histogram(binwidth=.25, colour="black", fill="white") +
+    geom_vline(aes(xintercept=mean(magnitude, na.rm=T)),  
+               color="black", size=1) +
+    geom_vline(aes(xintercept=median(magnitude, na.rm=T)),   
+               color="darkred", linetype="dashed", size=1) +
+    geom_vline(aes(xintercept=Mode(magnitude)),  
+               color="darkgreen", linetype="dotted", size=1) 
+```
+
+## Poblaciones y muestras
+
+¿Qué tal se ven otro tipo de datos?
+
+```{r echo=FALSE, warning=FALSE}
+ggplot(pob, aes(x=height)) +
+    geom_histogram(binwidth=10, colour="black", fill="white") +
+    geom_vline(aes(xintercept=mean(height, na.rm=T)),  
+               color="black", size=1) +
+    geom_vline(aes(xintercept=median(height, na.rm=T)),   
+               color="darkred", linetype="dashed", size=1) +
+    geom_vline(aes(xintercept=Mode(height)),  
+               color="darkgreen", linetype="dotted", size=1) +
+  ggtitle("starwars height distribution")
+```
+
+## Poblaciones y muestras
+
+* Medidas de dispersión
+    + Valores mínimos, máximos, cuantiles
+    
+```{r}
+summary(pob$height)
+```
+    
+## Poblaciones y muestras
+
+* Medidas de dispersión
+    + Desviación típica
+    
+\begin{equation}
+SD = \sqrt{\frac{\sum_{i=1}^N (x_i - \mu)}{N -1}}
+\end{equation}
+    
+```{r}
+sd(pob$height,na.rm = TRUE)
+```
+    
+    
+## Poblaciones y muestras
+
+* Medidas de dispersión
+    + error estándar asociado a la media
+
+## Poblaciones y muestras
+
+https://gallery.shinyapps.io/sampling_and_stderr/
+    
+<!-- ![](figuras/002_sampling_error.png) -->
+
+<!-- >- edades (ejemplo UHU) -->
+<!-- >- pequeño ejercicio -->
+<!-- >- errores de muestreo, sesgos (Fig 1.2.2 WS) -->
+<!-- >- muestreos aleatorios (ejercicio en R) -->
+<!-- >- *datos: altura alumnos, earthquakes, starwars height/mass* -->
 
 ## Medidas muestrales
 
@@ -37,11 +271,11 @@ Para responder preguntas como:
 >- dispersión: min/max, cuantiles, desviación típica, error estándar, coeficiente de variación, intervalos de confianza (R)
 >- desviación típica y error estándar (R)
 >- intervalos de confianza (R)
+>- *datos: altura alumnos, earthquakes, starwars height/mass*
 
 ## Representaciones gráficas
 
 >- histogramas/distribuciones (distribucion de frecuencias)
 >- boxplots
 >- correlaciones según tipo de variables (WS)
-
-## Diseño experimental
+>- *datos: altura alumnos, earthquakes, starwars height/mass, happiness-sunshine*
