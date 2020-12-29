@@ -1,0 +1,18 @@
+---
+title: "Técnicas estadísticas avanzadas para la conservación de la biodiversidad - Ejercicios"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Estadística descriptiva
+
+* Considera los conjuntos de datos `nations.csv`,`iris.csv`, y `trees.csv`, en la carpeta `datasets`. Para estos conjuntos de datos,
+
+  - selecciona una o varias variables numéricas.
+  - calcula las medidas de centralidad y dispersión de las variables seleccionadas (media, mediana, moda, desviación típica, asimetría, curtosis).
+  - extrae una muestra de cada variable, y calcula la media muestral, la desviación típica muestral, el error estándar de la media, y un intervalo de confianza al 95% para la media.
+  
+  

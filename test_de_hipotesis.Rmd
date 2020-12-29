@@ -1,0 +1,66 @@
+---
+title: "Tests de hipótesis"
+subtitle: "Técnicas estadísticas avanzadas para la conservación de la biodiversidad - Universidad de Huelva"
+author: "David García Callejas"
+date: "01/2021"
+output:
+  beamer_presentation:
+    theme: "metropolis"
+    highlight: zenburn
+fontsize: 10pt
+header-includes:
+- \usepackage{caption}
+- \captionsetup[figure]{labelformat=empty}
+---
+
+```{r setup, include=FALSE}
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, message = FALSE, size = "small")
+library(tidyverse)
+library(patchwork)
+set.seed(42)
+```
+
+## Tests de hipótesis
+
+Una vez tenemos datos observacionales o experimentales, queremos comprobar nuestras hipótesis ecológicas:
+
+>- ¿producen los individuos fertilizados más frutos?
+>- ¿hay más abundancia de coleópteros en zonas abiertas o boscosas?
+>- ¿hay más riqueza de especies en suelos salinos o neutros?
+
+## Tests de hipótesis
+
+Una vez tenemos datos observacionales o experimentales, queremos comprobar nuestras hipótesis ecológicas:
+
+* ¿producen los individuos fertilizados más frutos?
+* ¿hay más abundancia de coleópteros en zonas abiertas o boscosas?
+* ¿hay más riqueza de especies en suelos salinos o neutros?
+
+Todas estas preguntas implican contrastar dos o más muestras de diferentes poblaciones.
+
+## Tests de hipótesis
+
+Cuando comparamos una serie de poblaciones a través de muestras, siempre estamos comprobando una hipótesis:
+
+>- Hipótesis nula: No hay diferencias entre las poblaciones
+>- Hipótesis alternativa: Hay diferencias significativas
+
+## Tests de hipótesis
+
+¿Tiene sentido esta forma de pensar en ecología?
+
+## Tests de hipótesis
+
+* tipos de tests
+* p-valor y tipos de error
+* correlaciones
+* pasos:
+  - graficar datos
+  - realizar test
+  - evaluar resultados con ojos de ecólogo
+
