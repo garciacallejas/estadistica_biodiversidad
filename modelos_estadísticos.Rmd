@@ -25,14 +25,6 @@ library(patchwork)
 set.seed(42)
 ```
 
-## test de hipótesis
-
->- diferencias entre dos poblaciones (R, ver masterUPO R_S1)
->- p-valor
->- tipos de errores
->- ¿diferencias entre más de dos poblaciones? (WS p575 )
->- *datos: iris per sp, earthquakes per region*
-
 ## regresión estadística
 
 https://bookdown.org/speegled/foundations-of-statistics/
