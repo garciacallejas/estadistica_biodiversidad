@@ -264,21 +264,150 @@ library(broom)
 tidy(m1)
 ```
 
+Cada coeficiente tiene un valor estimado, el error asociado a ese valor (recordad el error estándar asociado a una muestra), y un p-valor. 
+
+Podemos recuperar los coeficientes directamente con
+
 ```{r}
-glance(m1)
+coef(m1)
 ```
 
 ## Regresión estadística
 
+Nuestro modelo es:
+
 \begin{equation}
-height_i = 19.3392 + 0.6 \cdot dbh_i
+height_i = 19.3392 + 0.6 \cdot dbh_i\notag
 \end{equation}
 
 ## Regresión estadística
 
-* Caso básico: 
-  + variable respuesta continua
-  + Una variable independiente continua
+Y los intervalos de confianza (al 95%) para los coeficientes son
+
+```{r}
+confint(m1)
+```
+
+Recordad que un intervalo al 95% es, aproximadamente, $\mu \pm 2\sigma$. La desviación típica asociada a cada coeficiente es su error estándar. Así pues, para la pendiente de la recta (el coeficiente asociado a la DBH), $0.61 \pm 2\cdot 0.01$ nos da los valores del intervalo.
+
+## Regresión estadística
+
+¿Cómo interpretar el p-valor asociado a un coeficiente?
+
+Generalmente, se dice que si $p < 0.05$, la variable independiente tiene una relación significativa (diferente de cero) con la respuesta. Esto no es necesariamente así. Ya sabemos que 0.05 es un valor arbitrario, y que las relaciones entre variables no son dicotómicas.
+
+```{r echo=FALSE, out.width="60%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","pvalue_significance.png"))
+```
+
+Ver: https://doi.org/10.1038/d41586-019-00857-9
+
+## Regresión estadística
+
+¿Cómo interpretar el p-valor asociado a un coeficiente?
+
+Es mucho más informativo comunicar el efecto asociado a una variable (e.g. cada unidad de DBH hace aumentar en 0.6 unidades la altura de un árbol) y su incertidumbre asociada (su intervalo de confianza o su error estándar).
+
+## Regresión estadística
+
+We found a ~~significant~~ positive relationship between tree DBH and height ~~(p < 0.05)~~ (b = 0.61, SE = 0.01)
+
+## Regresión estadística
+
+El último parámetro de interés es el "coeficiente de determinación", $R^2$. Nos informa de cómo de bueno es el ajuste de nuestro modelo. Literalmente, nos dice qué proporción de la varianza en los datos viene explicada por nuestro modelo. En nuestro caso, 
+
+```{r}
+summary(m1)$adj.r.squared
+```
+
+La variación en altura entre los árboles de nuestra muestra viene explicada en un 79% por su variación en DBH. Existe un 21% de variación en altura que responde potencialmente a otros factores, sean estocásticos, errores muestrales, o ecológicos.
+
+>- nota: un $R^2$ de 0.79 es *realmente alto* para los estándares de estudios en ecología...
+
+## Regresión estadística
+
+Visualización del modelo:
+
+```{r}
+library(visreg)
+visreg(m1)
+```
+
+## Regresión estadística
+
+Visualización del modelo:
+
+```{r out.width="80%"}
+ggplot(trees, aes(x = dbh, y = height)) + 
+  geom_smooth(method = "lm") + 
+  geom_point()
+```
+
+## Regresión estadística
+
+¿Podemos predecir la altura de un árbol nuevo, en función de su DBH?
+\begin{equation}
+height_i = 19.3392 + 0.6 \cdot dbh_i\notag
+\end{equation}
+
+```{r}
+new.dbh <-data.frame(dbh =c(12))
+predict(m1, new.dbh,se.fit =TRUE)
+```
+
+## Regresión estadística
+
+¿Podemos predecir la altura de un árbol nuevo, en función de su DBH?
+\begin{equation}
+height_i = 19.3392 + 0.6 \cdot dbh_i\notag
+\end{equation}
+
+```{r}
+predict(m1, new.dbh,interval ="prediction")
+```
+
+## Regresión estadística
+
+Pasos en la elaboración de modelos estadísticos
+
+>- Análisis exploratorio y visualización
+>- Ajustar modelo
+>- Comprobar residuos
+>- Visualizar modelo
+>- Interpretar resultados
+>- Predicción
+
+## Regresión estadística
+
+Otros casos:
+
+>- variable independiente categórica
+>- múltiples variables independientes
+>- datos más complejos: residuos no normales, variable respuesta discreta...
+
+## Regresión estadística
+
+```{r echo=FALSE, out.width="99%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","model_types.png"))
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del sexo?
+
+## Regresión estadística
+
+* Un predictor categórico con varias categorías: ¿Varía la altura de los árboles en función del lugar de muestreo?
+
+## Regresión estadística
+
+* Combinando predictores categóricos y numéricos: ¿Varía la altura de los árboles en función de su DBH y el lugar de muestreo?
+
+## Regresión estadística
+
+* Interacciones entre predictores: ¿Varía la relación altura-DBH entre lugares de muestreo?
+
+## Regresión estadística
 
 https://bookdown.org/speegled/foundations-of-statistics/
 
