@@ -25,15 +25,240 @@ library(patchwork)
 set.seed(42)
 ```
 
-## test de hipótesis
+## Regresión estadística
 
->- diferencias entre dos poblaciones (R, ver masterUPO R_S1)
->- p-valor
->- tipos de errores
->- ¿diferencias entre más de dos poblaciones? (WS p575 )
->- *datos: iris per sp, earthquakes per region*
+Hasta ahora:
 
-## regresión estadística
+>- Sabemos cómo cuantificar una muestra o una población
+>- Sabemos los fundamentos del diseño experimental
+>- Sabemos cómo comparar dos muestras
+
+>- Pero aun queda todo un mundo de preguntas que podemos resolver:
+>    + ¿Cómo afecta una variable independiente a una respuesta?
+>    + ¿Podemos predecir una variable en función de otras?
+>    + ¿Qué ocurre cuando tenemos más de dos tratamientos en una población?
+
+>- Respuesta: $y = a + bx$
+
+## Regresión estadística
+
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","marco_regresion.png"))
+```
+
+## Regresión estadística
+
+```{r echo=FALSE, out.width="99%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","model_types.png"))
+```
+
+## Regresión estadística
+
+Regresión lineal:
+
+* Relación lineal entre las variables
+
+
+```{r echo=FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","intercept_slope.png"))
+```
+
+## Regresión estadística
+
+Regresión lineal:
+
+* Minimiza el *error residual*
+
+```{r echo=FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","least_squares_line.png"))
+```
+
+## Regresión estadística
+
+* ¿Cómo calcular la recta con menor error residual? **Método de mínimos cuadrados**
+
+```{r echo=FALSE, out.width="70%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","least_squares_line.png"))
+```
+
+\begin{gather}
+b = \frac{\sum{(x_i - \bar{x})(y_i - \bar{y})}}{\sum{(x_i - x)^2}}\\
+a = \bar{y} - b\bar{x}
+\end{gather}
+
+## Regresión estadística
+
+* Residuos: diferencia entre valor observado y predicho
+
+* Recuerda:
+
+\begin{gather}
+y_i = a + bx_i + \varepsilon_i\notag\\
+\varepsilon_i \sim N(0,\sigma^2)\notag
+\end{gather}
+
+## Regresión estadística
+
+* Residuos: diferencia entre valor observado y predicho
+
+```{r echo=FALSE, out.width="70%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","error_residual.png"))
+```
+
+## Regresión estadística
+
+* Para que la estimación sea correcta, la distribución de residuos debe ser normal
+* y la varianza debe ser homogénea
+
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","normalidad_residuos.png"))
+```
+
+## Regresión estadística
+
+* **Again**: Para que la estimación sea correcta, la distribución de residuos debe ser normal y la varianza residual, homogénea
+
+```{r echo=FALSE, out.width="70%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","normalidad_residuos_2.png"))
+```
+
+## Regresión estadística
+
+*Importante*: Esto no implica que la variable respuesta, o la variable independiente, deban tener una distribución normal!
+
+## Regresión estadística
+
+¿Podemos predecir la altura de un árbol a partir de su *dbh*?
+
+
+```{r}
+trees <- read.csv(here::here("datasets","trees.csv"))
+```
+
+## Regresión estadística
+
+**Siempre**
+
+Visualiza los datos como primer paso
+
+```{r echo=FALSE, out.width="70%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","plot_data_first.png"))
+```
+
+## Regresión estadística
+
+¿Hay outliers en los datos?
+
+```{r out.width="80%"}
+ggplot(trees, aes(dbh, height)) +
+geom_point()
+```
+
+## Regresión estadística
+
+¿Cómo están distribuidas las variables independientes y respuesta?
+
+```{r out.width="80%"}
+hist(trees$height)
+```
+
+## Regresión estadística
+
+¿Cómo están distribuidas las variables independientes y respuesta?
+
+```{r out.width="80%"}
+hist(trees$dbh)
+```
+
+## Regresión estadística
+
+Después del análisis exploratorio, si no hay nada raro, ajustamos el modelo:
+
+```{r}
+m1 <- lm(height ~ dbh, data = trees)
+```
+
+que se corresponde con:
+
+\begin{gather}
+height_i = a + b \cdot DBH_i + \varepsilon_i\notag\\
+\varepsilon_i \sim N(0,\sigma^2)\notag
+\end{gather}
+
+## Regresión estadística
+
+¿Y ahora?
+
+```{r}
+m1
+```
+
+## Regresión estadística
+
+```{r}
+summary(m1)
+```
+
+## Regresión estadística
+
+Antes de interpretar el resultado, comprobamos que los residuos se ajustan a una distribución normal
+
+```{r out.width="70%"}
+res <- resid(m1)
+hist(res)
+```
+
+## Regresión estadística
+
+```{r eval=FALSE}
+plot(m1)
+```
+
+```{r echo=FALSE, out.width="90%"}
+plot(m1, which = 1)
+```
+
+## Regresión estadística
+
+```{r eval=FALSE}
+plot(m1)
+```
+
+```{r echo=FALSE, out.width="90%"}
+plot(m1, which = 2)
+```
+
+## Regresión estadística
+
+```{r eval=FALSE}
+plot(m1)
+```
+
+```{r echo=FALSE, out.width="90%"}
+plot(m1, which = 3)
+```
+
+## Regresión estadística
+
+```{r eval=FALSE}
+plot(m1)
+```
+
+```{r echo=FALSE, out.width="90%"}
+plot(m1, which = 4)
+```
+
+## Regresión estadística
+
+Una vez comprobamos que el modelo ajusta bien
+
+## Regresión estadística
+
+* Caso básico: 
+  + variable respuesta continua
+  + Una variable independiente continua
+
+https://bookdown.org/speegled/foundations-of-statistics/
 
 >- marco general (UHU, WS p671)
 >- residuos (WS p689)

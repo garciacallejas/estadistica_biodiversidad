@@ -1,0 +1,492 @@
+---
+title: "Tests de hipótesis"
+subtitle: "Técnicas estadísticas avanzadas para la conservación de la biodiversidad - Universidad de Huelva"
+author: "David García Callejas"
+date: "01/2021"
+output:
+  beamer_presentation:
+    theme: "metropolis"
+    highlight: zenburn
+fontsize: 10pt
+header-includes:
+- \usepackage{caption}
+- \captionsetup[figure]{labelformat=empty}
+---
+
+```{r setup, include=FALSE}
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, message = FALSE, size = "small")
+library(tidyverse)
+library(patchwork)
+set.seed(42)
+```
+
+## Tests de hipótesis
+
+Una vez tenemos datos observacionales o experimentales, queremos comprobar nuestras hipótesis ecológicas:
+
+>- ¿producen los individuos fertilizados más frutos?
+>- ¿hay más abundancia de coleópteros en zonas abiertas o boscosas?
+>- ¿hay más riqueza de especies en suelos salinos o neutros?
+
+## Tests de hipótesis
+
+Una vez tenemos datos observacionales o experimentales, queremos comprobar nuestras hipótesis ecológicas:
+
+* ¿producen los individuos fertilizados más frutos?
+* ¿hay más abundancia de coleópteros en zonas abiertas o boscosas?
+* ¿hay más riqueza de especies en suelos salinos o neutros?
+
+Todas estas preguntas implican contrastar dos o más muestras de diferentes poblaciones.
+
+## Tests de hipótesis
+
+Cuando comparamos una serie de poblaciones a través de muestras, siempre estamos comprobando una hipótesis:
+
+>- Hipótesis nula: No hay diferencias entre las poblaciones
+>- Hipótesis alternativa: Hay diferencias significativas
+
+## Tests de hipótesis
+
+¿Tiene sentido esta forma de pensar en ecología?
+
+>- En el mundo natural, no hay dos poblaciones exactamente iguales
+>- En vez de tests dicotómicos, en ecología tiene más sentido preguntar por la *magnitud* de las diferencias
+
+## Tests de hipótesis
+
+```{r echo=FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","martinez_abrain.png"))
+```
+
+## Tests de hipótesis
+
+Dicho esto, es necesario conocer los fundamentos de los tests de hipótesis, pues subyacen a la mayoría de análisis estadísticos que os encontraréis.
+
+Pasos:
+
+>- Definir la hipótesis nula/alternativa
+>- Exploración de los datos
+>- Realizar el test estadístico
+>- Estimar la significación estadística
+>- Interpretar los resultados
+
+## Tests de hipótesis
+
+>- Definir la hipótesis nula/alternativa -> diseño experimental
+>- Exploración de los datos
+
+Los números y tablas, por sí solos, no son *nunca* suficientes para entender patrones. Es **imprescindible** visualizar los datos para identificar potenciales problemas o tendencias.
+
+## Tests de hipótesis
+
+```{r warning=FALSE}
+horned_lizards <- 
+  read.csv(file = here::here("datasets",
+                             "chap12e3HornedLizards.csv"))
+
+dist.hl <- ggplot(horned_lizards,aes(x = Survival, 
+                                     y = squamosalHornLength)) + 
+  geom_boxplot(aes(fill = Survival)) + 
+  geom_point(aes(fill = Survival), shape = 21, 
+             position = position_jitter()) + 
+  labs(y = "horn length (mm)", x = "survival") +
+  guides(fill = FALSE)+
+  theme_bw() 
+```
+
+## Tests de hipótesis
+
+```{r echo=FALSE,warning=FALSE, out.width="70%"}
+dist.hl
+```
+
+## Tests de hipótesis
+
+Tipos de tests (2 muestras)
+
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","pruebas_dos_muestras.png"))
+```
+
+## Tests de hipótesis
+
+1. ¿Datos normales?
+
+>- De nuevo: visualización
+
+```{r warning=FALSE, out.height="45%"}
+ggplot(horned_lizards,aes(x = squamosalHornLength)) + 
+  geom_histogram(aes(fill = Survival), 
+                 binwidth = .5, color = "black") + 
+  facet_grid(Survival~.) + 
+  guides(fill = FALSE) + 
+  theme_bw()
+```
+
+## Tests de hipótesis
+
+QQplot: datos normales deberían ajustarse a la línea recta
+
+```{r warning=FALSE, out.height="55%"}
+ggplot(horned_lizards,aes(sample = squamosalHornLength)) + 
+  stat_qq() + stat_qq_line() + 
+  facet_grid(Survival~.) +
+  theme_bw()
+```
+
+## Tests de hipótesis
+
+Tests estadísticos para comprobar normalidad:
+
+* Para muestras pequeñas (e.g. < 50): `shapiro.test`
+* Para muestras > 50 (aprox): Kolmogorov-Smirnov
+
+```{r}
+x <- horned_lizards$squamosalHornLength
+x <- x[which(!is.na(x))]
+ks.test(x,"pnorm", mean=mean(x), sd=sd(x))
+```
+
+## Tests de hipótesis
+
+Tipos de tests (2 muestras)
+
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","pruebas_dos_muestras.png"))
+```
+
+## Tests de hipótesis
+
+* En general, desconocemos la varianza poblacional, así que la siguiente pregunta depende de si las muestras son pareadas o no.
+
+```{r echo=FALSE, out.width="70%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","muestras_pareadas.png"))
+```
+
+## Tests de hipótesis
+
+* **Prueba de la t**: diferencias entre las medias de dos muestras con distribución normal y varianzas similares
+
+```{r}
+t.test(squamosalHornLength ~ Survival, 
+       data = horned_lizards, 
+       paired = FALSE)
+```
+
+## Tests de hipótesis
+
+Otra sintaxis: 
+
+```{r eval=FALSE}
+x <- horned_lizards$squamosalHornLength[
+  horned_lizards$Survival == "living"]
+y <- horned_lizards$squamosalHornLength[
+  horned_lizards$Survival == "killed"]
+t.test(x,y,paired = FALSE)
+```
+
+## Tests de hipótesis
+
+* **Prueba U de Mann-Whitney**: Cuando no se cumplen las asunciones de normalidad y similitud en varianzas
+
+```{r}
+wilcox.test(squamosalHornLength ~ Survival, 
+            data = horned_lizards, 
+            paired = FALSE)
+```
+
+## Tests de hipótesis
+
+>- En todos estos casos, el test calcula un *estadístico*, un número que evalúa cómo de compatibles son los datos con el resultado esperado bajo la hipótesis nula.
+
+>- Lo que queremos obtener, al fin y al cabo, es la probabilidad de obtener nuestros datos *en el caso de que la hipótesis nula sea cierta*. El estadístico (t en `t.test`, W en `wilcox.test`) tiene un p-valor asociado, que cuantifica esta probabilidad.
+
+>- **Cuidado:** el p-valor NO cuantifica la probabilidad de que la hipótesis nula sea cierta.
+
+## Tests de hipótesis
+
+>- Una vez calculado el p-valor asociado a nuestro test, podemos aceptar la hipótesis nula (no hay diferencias entre las dos medias muestrales) o rechazar la hipótesis nula con las muestras proporcionadas. Un p-valor bajo (cercano a cero) indica que es poco probable que nuestros datos provengan de poblaciones iguales.
+
+>- Pero, ¿cómo de bajo ha de ser el p-valor para aceptar o no la hipótesis nula?
+
+>- Tomamos un valor arbitrario, que denota el grado de significación que queremos asociar. Generalmente, usamos $\alpha = 0.05$. En este caso, si el p-valor es < 0.05, podemos rechazar la hipótesis nula con un 95% de confianza.
+
+## Tests de hipótesis
+
+* Una práctica muy común, y absolutamente errónea, es tomar el p-valor como una verdad absoluta sobre nuestras hipótesis.
+
+  * El p-valor depende del tamaño muestral: mayores tamaños muestrales pueden generar diferencias significativas más fácilmente.
+
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","pvalue_sample_size.png"))
+```
+
+## Tests de hipótesis
+
+* Una práctica muy común, y absolutamente errónea, es tomar el p-valor como una verdad absoluta sobre nuestras hipótesis.
+
+  * El p-valor depende del tamaño muestral: mayores tamaños muestrales pueden generar diferencias significativas más fácilmente.
+  * La significación estadística NO implica importancia biológica (y viceversa).
+
+```{r echo=FALSE, out.width="70%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","p_value_dist.png"))
+```
+
+## Tests de hipótesis
+
+¿Es significativa una diferencia de 0.1 unidades entre dos poblaciones?
+
+```{r}
+num.muestras <- seq(from = 10, to = 10000,by = 10)
+
+resultados <- data.frame(muestras = num.muestras,
+                         p.valor = NA)
+
+for(i in num.muestras){
+  m1 <- rnorm(i,0,1)
+  m2 <- rnorm(i,0.1,1)
+  
+  mi.test <- t.test(m1,m2)
+  resultados$p.valor[resultados$muestras == i] <- 
+    mi.test$p.value
+}
+```
+
+## Tests de hipótesis
+
+```{r}
+head(resultados)
+```
+
+## Tests de hipótesis
+
+```{r eval=FALSE}
+ggplot(resultados, aes(x = log(num.muestras), 
+                       y = p.valor, 
+                       group = 1)) + 
+  geom_point(color = "grey") + 
+  geom_line(color = "grey") + 
+  geom_hline(yintercept = 0.05, 
+             linetype = "dashed", 
+             color = "darkred") +
+  theme_bw()
+```
+
+## Tests de hipótesis
+
+```{r echo=FALSE, out.width="90%"}
+ggplot(resultados, aes(x = log(num.muestras), 
+                       y = p.valor, 
+                       group = 1)) + 
+  geom_point(color = "grey") + 
+  geom_line(color = "grey") + 
+  geom_hline(yintercept = 0.05, 
+             linetype = "dashed", 
+             color = "darkred") +
+  theme_bw()
+```
+
+## Tests de hipótesis
+
+https://doi.org/10.1080/00031305.2016.1154108
+
+```{r echo=FALSE, out.width="70%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","asa_pvalues.png"))
+```
+
+>- P-values do not measure the probability of hypothesis being true, or the probability that the data were produced by random chance alone.
+>- Scientific conclusions or policy decisions should NOT be based only on whether a p-value passes a specific threshold.
+>- P-value, or statistical significance, does not measure the size of an effect or the importance of a result.
+>- By itself, a p-value does NOT provide a good measure of evidence regarding a model or hypothesis.
+
+## Tests de hipótesis
+
+¿Qué tipos de error podemos cometer?
+
+* Rechazar la hipótesis nula en un test estadístico no quiere decir necesariamente que ésta sea *realmente* falsa.
+* Igualmente, aceptar la hipótesis nula no implica que ésta sea cierta.
+
+  >- Trabajamos con muestras sujetas a estocasticidad: errores muestrales, aleatorios, efectos no considerados, etc.
+
+## Tests de hipótesis
+
+¿Qué tipos de error podemos cometer?
+
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","error_types.png"))
+```
+
+## Tests de hipótesis
+
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","error_types_table.jpg"))
+```
+
+## Tests de hipótesis
+
+* Otro tipo de tests nos indican si dos variables están *correlacionadas*
+
+## Tests de hipótesis
+
+¿Está correlacionado el tamaño corporal con la masa cerebral?
+
+```{r echo=FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","correlacion_masa_cerebro.png"))
+```
+
+## Tests de hipótesis
+
+¿Cómo se cuantifica la correlación entre dos variables numéricas?
+
+* Coeficientes de correlación: Pearson, Spearman, Kendall
+* Variación entre [-1,1]
+
+```{r}
+pob <- read.csv2(here::here("datasets",
+                            "starwars_info_personajes.csv"),
+                 dec=",")
+pob.clean <- subset(pob, !is.na(height) & !is.na(mass))
+
+cor(x = pob.clean$height, 
+    y = pob.clean$mass, 
+    method = "pearson")
+```
+
+## Tests de hipótesis
+
+```{r}
+ggplot(pob.clean, aes(x = height, y = mass)) + 
+  geom_point()
+```
+
+## Tests de hipótesis
+
+Si eliminamos el outlier...
+
+```{r}
+pob.clean.2 <- pob.clean[-which(pob.clean$mass == 
+                                  max(pob.clean$mass)),]
+
+cor(x = pob.clean.2$height, 
+    y = pob.clean.2$mass, 
+    method = "pearson")
+```
+
+## Tests de hipótesis
+
+Correlaciones entre múltiples variables: matriz de correlaciones
+
+```{r}
+library(tidyverse)
+dat <- mtcars %>%
+  select(-vs, -am)
+
+head(dat, 5)
+```
+
+## Tests de hipótesis
+
+Correlaciones entre múltiples variables: matriz de correlaciones
+
+```{r}
+round(cor(dat),digits = 2)
+```
+
+## Tests de hipótesis
+
+```{r out.width="50%"}
+library(corrplot)
+
+corrplot(cor(dat),
+  method = "number",
+  type = "upper")
+```
+
+## Tests de hipótesis
+
+```{r}
+library(correlation)
+
+tabla.correlaciones <- correlation::correlation(dat,
+  include_factors = TRUE, method = "auto")
+
+head(tabla.correlaciones[,c(1,2,3,8,9)])
+```
+
+## Tests de hipótesis
+
+```{r echo=FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","correlaciones_05.png"))
+```
+
+## Tests de hipótesis
+
+```{r echo=FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","correlaciones_0.png"))
+```
+
+## Tests de hipótesis
+
+```{r echo=FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","correlaciones_09.png"))
+```
+
+## Tests de hipótesis
+
+https://rpsychologist.com/correlation/
+
+## Tests de hipótesis
+
+**Resumen**
+
+>- Los tests de hipótesis nos permiten cuantificar diferencias entre dos muestras de poblaciones diferentes
+>- Se basan en testar una hipótesis nula (no hay diferencias entre medias) frente a la alternativa (sí hay diferencias)
+>- Existen tests para datos que provienen de distribuciones normales (t-test) o no normales (U Mann-Whitney)
+>- La significación *estadística* viene dada por un parámetro llamado p-valor
+>- El p-valor, por sí solo, no nos dice nada de la relevancia *biológica* de las diferencias entre poblaciones
+>- Los tests para evaluar correlaciones nos indican la relación observada entre dos variables numéricas
+
+## Tests de hipótesis
+
+**Recetario de R**
+
+```{r eval=FALSE}
+# normalidad de una muestra
+shapiro.test(pob.clean)
+
+# test de hipótesis para la igualdad de medias 
+# de dos muestras normales
+t.test(squamosalHornLength ~ Survival, 
+       data = horned_lizards)
+
+# test de hipótesis para la igualdad de medias 
+# de dos muestras no normales
+wilcox.test(squamosalHornLength ~ Survival, 
+       data = horned_lizards)
+```
+
+## Tests de hipótesis
+
+**Recetario de R**
+
+```{r eval=FALSE}
+# correlación entre dos muestras
+cor(dat$mpg,dat$cyl)
+
+# correlación entre múltiples variables
+correlation::correlation(dat,
+  include_factors = TRUE, 
+  method = "auto")
+
+# resumen gráfico de la matriz
+# de correlaciones
+corrplot(cor(dat),
+  method = "number",
+  type = "upper")
+```
+
