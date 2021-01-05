@@ -39,8 +39,6 @@ Hasta ahora:
 >    + ¿Podemos predecir una variable en función de otras?
 >    + ¿Qué ocurre cuando tenemos más de dos tratamientos en una población?
 
->- Respuesta: $y = a + bx$
-
 ## Regresión estadística
 
 ```{r echo=FALSE, out.width="80%", fig.align="center"}
@@ -78,7 +76,7 @@ knitr::include_graphics(here::here("figuras","least_squares_line.png"))
 
 * ¿Cómo calcular la recta con menor error residual? **Método de mínimos cuadrados**
 
-```{r echo=FALSE, out.width="70%", fig.align="center"}
+```{r echo=FALSE, out.width="80%", fig.align="center"}
 knitr::include_graphics(here::here("figuras","least_squares_line.png"))
 ```
 
@@ -134,6 +132,7 @@ knitr::include_graphics(here::here("figuras","normalidad_residuos_2.png"))
 
 ```{r}
 trees <- read.csv(here::here("datasets","trees.csv"))
+head(trees)
 ```
 
 ## Regresión estadística
@@ -306,7 +305,7 @@ Ver: https://doi.org/10.1038/d41586-019-00857-9
 
 ¿Cómo interpretar el p-valor asociado a un coeficiente?
 
-Es mucho más informativo comunicar el efecto asociado a una variable (e.g. cada unidad de DBH hace aumentar en 0.6 unidades la altura de un árbol) y su incertidumbre asociada (su intervalo de confianza o su error estándar).
+Es mucho más informativo comunicar el efecto asociado a una variable (e.g. aumentar una unidad de DBH implica aumentar en 0.6 unidades la altura de un árbol) y su incertidumbre asociada (su intervalo de confianza o su error estándar).
 
 ## Regresión estadística
 
@@ -363,7 +362,65 @@ height_i = 19.3392 + 0.6 \cdot dbh_i\notag
 \end{equation}
 
 ```{r}
+predict(m1, new.dbh,interval ="confidence")
+```
+
+
+```{r}
 predict(m1, new.dbh,interval ="prediction")
+```
+
+## Regresión estadística
+
+Estos intervalos nos ayudan a entender los dos tipos de predicciones asociadas a un modelo de regresión:
+
+* Predecir el valor medio de la variable respuesta para un valor determinado de la variable predictora
+* Predecir el valor concreto de la variable respuesta para un valor determinado de la variable predictora
+
+En nuestro ejemplo, esto se traduce en dos cuestiones:
+
+* Predecir la altura *media* de los árboles con una DBH determinada
+* Predecir la altura *de un individuo* con una DBH determinada
+
+Aunque el valor predicho será el mismo en ambos casos, la incertidumbre asociada a las predicciones es diferente. La primera predicción tiene asociado un intervalo de confianza, la segunda predicción tiene asociado un intervalo de predicción.
+
+## Regresión estadística
+
+Ejemplo con otros datos (en los datos de árboles el intervalo de confianza es muy pequeño)
+
+```{r eval=FALSE}
+# 0. datos y modelo
+data("cars", package = "datasets")
+model <- lm(dist ~ speed, data = cars)
+# predicciones
+pred.int <- predict(model, interval = "prediction")
+mydata <- cbind(cars, pred.int)
+# visualizar recta de regresión e intervalos
+library("ggplot2")
+p <- ggplot(mydata, aes(speed, dist)) +
+  geom_point() +
+  stat_smooth(method = lm) +
+  # intervalos de predicción
+  geom_line(aes(y = lwr), color = "red", linetype = "dashed") +
+  geom_line(aes(y = upr), color = "red", linetype = "dashed")
+```
+
+## Regresión estadística
+
+```{r echo=FALSE, warning=FALSE, out.width="80%"}
+# 0. datos y modelo
+data("cars", package = "datasets")
+model <- lm(dist ~ speed, data = cars)
+# predicciones
+pred.int <- predict(model, interval = "prediction")
+mydata <- cbind(cars, pred.int)
+# visualizar recta de regresión e intervalos
+library("ggplot2")
+p <- ggplot(mydata, aes(speed, dist)) +
+  geom_point() +
+  stat_smooth(method = lm)
+p + geom_line(aes(y = lwr), color = "red", linetype = "dashed")+
+    geom_line(aes(y = upr), color = "red", linetype = "dashed")
 ```
 
 ## Regresión estadística
