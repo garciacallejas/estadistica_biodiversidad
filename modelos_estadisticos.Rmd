@@ -123,12 +123,15 @@ knitr::include_graphics(here::here("figuras","normalidad_residuos_2.png"))
 
 ## Regresión estadística
 
-*Importante*: Esto no implica que la variable respuesta, o la variable independiente, deban tener una distribución normal!
+**Asunciones de la regresión lineal:**
+
+>- variable respuesta: normal
+>- distribución de residuos: normal
+>- varianza residual: homogénea
 
 ## Regresión estadística
 
 ¿Podemos predecir la altura de un árbol a partir de su *dbh*?
-
 
 ```{r}
 trees <- read.csv(here::here("datasets","trees.csv"))

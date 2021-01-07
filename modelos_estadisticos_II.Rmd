@@ -28,15 +28,158 @@ set.seed(42)
 
 ## Modelos lineales generalizados
 
-* Hasta ahora: modelos lineales con variable respuesta **continua** y residuos **normales**
+>- Hasta ahora: modelos lineales con variable respuesta **continua** y residuos **normales**
 
->- ¿podemos modelar variables respuestas discretas?
+>- ¿podemos modelar variables con respuestas discretas? Por ejemplo, mortalidad de peces en función de tiempo de exposición a temperaturas de 5ºC:
 
 ```{r}
-gupp <- read.csv(here::here("datasets","chap17f9_1GuppyColdDeath.csv"))
+gupp <- read.csv(here::here("datasets",
+                            "chap17f9_1GuppyColdDeath.csv"))
+head(gupp)
 ```
 
+## Modelos lineales generalizados
 
+```{r out.width="70%"}
+ggplot(gupp, aes(x = exposureDurationMin,y = mortality)) +
+  geom_point(position = position_jitter(width = .3,height = .03))
+```
+
+## Modelos lineales generalizados
+
+* ¿Podemos aplicar una regresión lineal a estos datos?
+
+>    - ¿la relación entre X e Y es lineal?
+>    - ¿esperamos que los residuos sean normales?
+
+## Modelos lineales generalizados
+
+```{r out.width="70%"}
+lmgupp <- lm(mortality ~ exposureDurationMin, data = gupp)
+ggplot(gupp, aes(x = exposureDurationMin,y = mortality)) +
+  geom_point(position = position_jitter(width = .3,height = .03)) + 
+  geom_smooth(method = "lm")
+```
+
+## Modelos lineales generalizados
+
+>- Para valores muy bajos o muy altos de exposición, la mortalidad es **< 0** o **> 1**
+>- ¿y los residuos?
+
+## Modelos lineales generalizados
+
+* Para valores muy bajos o muy altos de exposición, la mortalidad es **< 0** o **> 1**
+* ¿y los residuos?
+
+```{r echo=FALSE, out.width="80%"}
+plot(lmgupp,which = 1)
+```
+
+## Modelos lineales generalizados
+
+* Para valores muy bajos o muy altos de exposición, la mortalidad es **< 0** o **> 1**
+* ¿y los residuos?
+
+```{r echo=FALSE, out.width="80%"}
+hist(resid(lmgupp))
+```
+
+## Modelos lineales generalizados
+
+En este caso, queremos modelar la probabilidad de mortalidad en función del tiempo de exposición a temperaturas bajas, con una función limitada entre 0 y 1
+
+```{r echo=FALSE, out.width="70%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","linear_logistic_regression.png"))
+```
+
+## Modelos lineales generalizados
+
+```{r echo=FALSE, out.width="80%"}
+binomial_smooth <- function(...) {
+  geom_smooth(method = "glm", method.args = list(family = "binomial"), ...)
+}
+
+ggplot(gupp, aes(x = exposureDurationMin,y = mortality)) +
+  geom_point(position = position_jitter(width = .3,height = .03)) + 
+  binomial_smooth()
+```
+
+## Modelos lineales generalizados
+
+Este tipo de modelos, que permiten modelar respuestas *no normales*, se llaman **Modelos lineales generalizados** (*Generalized Linear Models*, GLM).
+
+Tienen tres componentes:
+
+>- Distribución estadística de la variable respuesta
+>- Variables predictoras
+>- Función de enlace
+
+## Modelos lineales generalizados
+
+>- En un modelo con variable respuesta **binaria**, la distribución es la distribución **binomial**.
+>- Las variables predictoras son equivalentes a un modelo lineal.
+>- La función de enlace nos permite modelar nuestra respuesta $a + b \cdot x_i$ en el intervalo $[0,1]$, en vez de que tome cualquier valor entre $[-\infty,\infty]$
+
+## Modelos lineales generalizados
+
+* Función de enlace
+
+Usamos la función logística: 
+
+$$Pr(mortalidad_i) = \frac{e^{a + bx_i}}{1 + e^{a + bx_i}}$$
+* La función enlace se aplica a la variable respuesta, por lo que reordenamos la ecuación previa:
+
+\begin{gather}
+Pr(mortalidad_i) = p_i = g(a + bx_i)\notag\\
+g^{-1}(p_i) = a + bx_i
+\end{gather}
+
+## Modelos lineales generalizados
+
+La función inversa de la logística se llama "logit". Esta, por fin, es nuestra función de enlace:
+
+$$logit(p_i) = a + bx_i$$
+De esta manera, para cualquier valor de $a, b, x_i$, la respuesta estará acotada entre $[0,1]$.
+
+## Modelos lineales generalizados
+
+**Función de enlace**: Transforma la estimación del modelo para que se ajuste a la distribución de la variable respuesta.
+
+## Modelos lineales generalizados
+
+* Ya tenemos todos los ingredientes para ajustar nuestro primer GLM
+
+```{r}
+glm1 <- glm(mortality ~ exposureDurationMin, 
+            data = gupp, 
+            family = "binomial")
+```
+
+que se corresponde con
+
+\begin{gather}
+logit(Pr(mortalidad_i)) a + b exposure_i)\notag
+\end{gather}
+
+## Modelos lineales generalizados
+
+```{r size="footnotesize"}
+summary(glm1)
+```
+
+## Modelos lineales generalizados
+
+```{r}
+coef(glm1)
+```
+
+**Estos coeficientes están en escala logit**. Debemos transformarlos a escala natural (probabilidades) para interpretarlos. Para ello, usamos la función logística:
+
+```{r}
+plogis(coef(glm1))
+```
+
+La probabilidad de que un pez muera en condiciones basales es del `r round(plogis(coef(glm1)[1]),2)`. 
 
 ## GLM
 
