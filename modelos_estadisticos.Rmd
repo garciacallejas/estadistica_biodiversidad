@@ -452,41 +452,350 @@ knitr::include_graphics(here::here("figuras","model_types.png"))
 
 * Un predictor categórico: ¿Varía la altura de los árboles en función del sexo?
 
+```{r}
+head(trees)
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del sexo?
+
+  + Visualización
+
+```{r out.width="50%"}
+ggplot(trees, aes(x = sex, y = height)) + 
+  geom_point(position = position_jitter()) +
+  geom_boxplot(alpha = 0.5)
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del sexo?
+
+  + Ajustar modelo
+
+```{r out.width="50%"}
+m2 <- lm(height ~ sex, data = trees)
+```
+
+que se corresponde con
+
+\begin{gather}
+height_i = a + b_{male} + \varepsilon_i\notag\\
+\varepsilon_i \sim N(0,\sigma^2)\notag
+\end{gather}
+
+## Regresión estadística
+
+```{r}
+summary(m2)
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del sexo?
+
+  + Comprobar residuos
+
+```{r echo=FALSE, out.width="70%"}
+plot(m2, which = 1)
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del sexo?
+
+  + Comprobar residuos
+
+```{r echo=FALSE, out.width="70%"}
+plot(m2, which = 2)
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del sexo?
+
+  + Comprobar residuos
+
+```{r echo=FALSE, out.width="70%"}
+hist(resid(m2))
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del sexo?
+
+  + Visualizar modelo
+  
+```{r out.width="80%"}
+visreg(m2)
+```
+  
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del sexo?
+
+  + Interpretar resultados
+  
+```{r}
+confint(m2)
+```
+  
+```{r}
+summary(m2)$adj.r.squared
+```
+
 ## Regresión estadística
 
 * Un predictor categórico con varias categorías: ¿Varía la altura de los árboles en función del lugar de muestreo?
+
+```{r}
+head(trees)
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del lugar de muestreo?
+
+  + Visualización
+
+```{r out.width="50%", warning=FALSE}
+ggplot(trees, aes(x = site, y = height)) + 
+  geom_point(position = position_jitter()) +
+  geom_boxplot(alpha = 0.5)
+```
+
+>- ¿Qué ocurre?
+
+## Regresión estadística
+
+```{r}
+str(trees)
+```
+
+>- "Site" es una variable numérica... debería ser categórica!
+
+## Regresión estadística
+
+```{r}
+str(trees)
+```
+
+>- "Site" es una variable numérica... debería ser categórica!
+
+```{r}
+trees$site <- as.factor(trees$site)
+```
+
+## Regresión estadística
+
+```{r out.width="50%"}
+ggplot(trees, aes(x = site, y = height)) + 
+  geom_point(position = position_jitter()) +
+  geom_boxplot(alpha = 0.5)
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del lugar de muestreo?
+
+  + Ajustar modelo
+
+```{r out.width="50%"}
+m3 <- lm(height ~ site, data = trees)
+```
+
+que se corresponde con
+
+\begin{gather}
+height_i = a + b_{site2} + c_{site3} + d_{site4} + ... + \varepsilon_i\notag\\
+\varepsilon_i \sim N(0,\sigma^2)\notag
+\end{gather}
+
+## Regresión estadística
+
+```{r size="tiny"}
+summary(m3)
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del lugar de muestreo?
+
+  + Comprobar residuos
+
+```{r echo=FALSE, out.width="70%"}
+plot(m3, which = 1)
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del lugar de muestreo?
+
+  + Comprobar residuos
+
+```{r echo=FALSE, out.width="70%"}
+plot(m3, which = 2)
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del lugar de muestreo?
+
+  + Comprobar residuos
+
+```{r echo=FALSE, out.width="70%"}
+hist(resid(m3))
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del lugar de muestreo?
+
+  + Visualizar modelo
+  
+```{r out.width="80%"}
+visreg(m3)
+```
+
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del lugar de muestreo?
+
+  + Visualizar modelo
+  
+```{r size="footnotesize"}
+library(effects)
+allEffects(m3)
+```
+  
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del lugar de muestreo?
+
+  + Visualizar modelo
+  
+```{r out.width="70%"}
+library(effects)
+plot(allEffects(m3))
+```
+  
+## Regresión estadística
+
+* Un predictor categórico: ¿Varía la altura de los árboles en función del lugar de muestreo?
+
+  + Interpretar resultados
+  
+```{r size="footnotesize"}
+confint(m3)
+```
+  
+```{r}
+summary(m3)$adj.r.squared
+```
 
 ## Regresión estadística
 
 * Combinando predictores categóricos y numéricos: ¿Varía la altura de los árboles en función de su DBH y el lugar de muestreo?
 
+```{r}
+m4 <- lm(height ~ site + dbh, data = trees)
+```
+
+que se corresponde con
+
+\begin{gather}
+height_i = a + b_{site2} + c_{site3} + d_{site4} + ... + k \cdot DBH_i + \varepsilon_i\notag\\
+\varepsilon_i \sim N(0,\sigma^2)\notag
+\end{gather}
+
 ## Regresión estadística
 
-* Interacciones entre predictores: ¿Varía la relación altura-DBH entre lugares de muestreo?
+```{r size = "tiny"}
+summary(m4)
+```
 
 ## Regresión estadística
 
-https://bookdown.org/speegled/foundations-of-statistics/
+```{r out.width="80%"}
+plot(allEffects(m4))
+```
 
->- marco general (UHU, WS p671)
->- residuos (WS p689)
->- distribucion normal
->- datos paco trees, primer lm
->- visualización
->- ajuste
->- interpretación y comunicación de resultados (incluyendo effect sizes)
->- validación (asunciones)
->- predicción
->- tipos de variables independientes (continuas y categóricas)
->- selección de modelos (R2)
+## Regresión estadística
 
-## Generalized linear models
+* Hemos ajustado un modelo con diferentes puntos de corte (uno por cada *site*) y una sola pendiente (DBH)
 
->- distribuciones continuas y discretas
->- likelihood (WS p814)
->- esquema general: distribución de residuos, fórmula, función de enlace
->- regresión logística (WS p701)
->- regresión de conteos (poisson, negbin)
->- selección de modelos (AIC)
+```{r echo=FALSE, out.width="90%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","trees_site_intercept.png"))
+```
 
+## Regresión estadística
+
+* Hemos ajustado un modelo con diferentes puntos de corte (uno por cada *site*) y una sola pendiente (DBH)
+
+>- ¿varía la relación altura-DBH ( = la pendiente) entre diferentes lugares de muestreo?
+
+## Regresión estadística
+
+* Interacciones entre predictores: ¿Varía la relación altura-DBH en función del lugar de muestreo?
+
+```{r}
+m5 <- lm(height ~ site * dbh, data = trees)
+```
+
+que se corresponde con
+
+\begin{gather}
+height_i = a + b_{site2} + c_{site3} + d_{site4} + ... +\\ k \cdot DBH + l \cdot DBH_{i,site2} + m \cdot DBH_{i,site3} + ... + \varepsilon_i\notag\\
+\varepsilon_i \sim N(0,\sigma^2)\notag
+\end{gather}
+
+## Regresión estadística
+
+```{r size = "tiny"}
+summary(m5)
+```
+
+## Regresión estadística
+
+```{r out.width="90%"}
+visreg(m5, xvar = "dbh", by = "site")
+```
+
+## Regresión estadística
+
+**Resumen de modelos lineales**
+
+>- permiten predecir una variable respuesta en función de otras independientes
+>- modelan *relaciones lineales*
+>- son la base para muchas de las técnicas estadísticas que trabajaréis
+
+## Regresión estadística
+
+Pasos en la elaboración de modelos estadísticos
+
+>- Análisis exploratorio y visualización
+>- Ajustar modelo
+>- Comprobar residuos
+>- Visualizar modelo
+>- Interpretar resultados
+>- Predicción
+
+## Regresión estadística
+
+**Recetario de R**
+
+* Ajustar un modelo: `modelo <- lm(respuesta ~ predictores, data = datos)`
+* comprobar residuos: `plot(modelo)`, `resid(modelo)`
+* visualizar modelo: `visreg(modelo)`, `allEffects(modelo)`
+* coeficientes: `coef(modelo)`, `tidy(modelo)`
+* intervalos de confianza: `confint(modelo)`
+* coeficiente de determinación: `summary(modelo)$adj.r.squared`
+
+## Regresión estadística
+
+Otros recursos:
+
+* https://bookdown.org/speegled/foundations-of-statistics/
+* https://bookdown.org/egarpor/PM-UC3M/
 

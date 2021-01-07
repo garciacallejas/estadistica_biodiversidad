@@ -1,0 +1,50 @@
+---
+title: "Modelos estadísticos II: Modelos lineales generalizados"
+subtitle: "Técnicas estadísticas avanzadas para la conservación de la biodiversidad - Universidad de Huelva"
+author: "David García Callejas"
+date: "01/2021"
+output:
+  beamer_presentation:
+    theme: "metropolis"
+    highlight: zenburn
+fontsize: 10pt
+header-includes:
+- \usepackage{caption}
+- \captionsetup[figure]{labelformat=empty}
+- \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, message = FALSE, size = "small")
+library(tidyverse)
+library(patchwork)
+set.seed(42)
+```
+
+## Modelos lineales generalizados
+
+* Hasta ahora: modelos lineales con variable respuesta **continua** y residuos **normales**
+
+>- ¿podemos modelar variables respuestas discretas?
+
+```{r}
+gupp <- read.csv(here::here("datasets","chap17f9_1GuppyColdDeath.csv"))
+```
+
+
+
+## GLM
+
+>- distribuciones continuas y discretas
+>- likelihood (WS p814)
+>- esquema general: distribución de residuos, fórmula, función de enlace
+>- regresión logística (WS p701)
+>- regresión de conteos (poisson, negbin)
+>- selección de modelos (AIC)
+
+
