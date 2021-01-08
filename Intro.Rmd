@@ -56,9 +56,10 @@ Web con los materiales del curso: https://github.com/garciacallejas/UHU_estadist
 
 ## Más info
 
-* Evaluación: Trabajo práctico (¿Fecha de Entrega?)
+* Evaluación: Trabajo práctico (**Fecha de entrega: 15/02**)
 * david.garcia.callejas@gmail.com
-  
+* ¿dudas?
+
 ## ¡Empezamos!
 
 ![](figuras/stats_are_coming.jpg)

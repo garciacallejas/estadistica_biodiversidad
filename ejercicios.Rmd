@@ -37,7 +37,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
   - ¿hay diferencias entre la magnitud media de terremotos registrados en Eurasia y en América del Sur?
 
-## Modelos estadísticos
+## Modelos lineales
 
 * Considera el conjunto de datos `iris.csv`.
 
@@ -48,5 +48,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
   - ¿existe relación entre la altura (height) y el peso corporal (mass) de los personajes? ¿cómo de buena es la relación?
   - ¿hay algún problema o elemento a tener en cuenta en los datos?
+
+## Modelos lineales generalizados
+
+* Considera el conjunto de datos `titanic_long.csv`. Genera GLMs para responder las siguientes preguntas:
+
+  - ¿cuál es la probabilidad de que un pasajero de primera clase sobreviviera al naufragio? ¿y la probabilidad para un pasajero de la tripulación (crew)?
+  - ¿hubo diferencias en la probabilidad de supervivencia de hombres y mujeres?
 
 
