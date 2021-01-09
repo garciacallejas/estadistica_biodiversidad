@@ -386,6 +386,7 @@ gdp.glm.qb <- glm(cbind(mortality, 1000 - mortality) ~ gdp,
 allEffects(gdp.glm)
 allEffects(gdp.glm.qb)
 ```
+
 ## Modelos lineales generalizados
 
 * Pero los errores asociados sí varían
@@ -407,7 +408,7 @@ plot(allEffects(gdp.glm.qb),main = "quasibinomial dist")
 
 Más allá de la solución concreta, este ejemplo nos ayuda a pensar en la forma de las relaciones entre variables. No todas las relaciones son de naturaleza lineal
 
-```{r out.width="80%", warning=FALSE}
+```{r out.width="75%", warning=FALSE}
 ggplot(gdp, aes(x = gdp, y = mortality)) + 
   geom_point()
 ```
@@ -471,6 +472,195 @@ Este último modelo sigue sin ser ideal, pero con datos reales, a veces no es f�
 seedlings <- read.csv(here::here("datasets","seedlings.csv"))
 head(seedlings)
 ```
+
+## Modelos lineales generalizados
+
+* Los datos de conteos son datos discretos en el intervalo $[0,1,..,n]$
+
+* Estos datos se modelan con la distribución de **Poisson**: una distribución discreta que expresa la probabilidad de un número de eventos ocurriendo en un intervalo fijo (espacial o temporal), suponiendo que estos eventos ocurren con una tasa media constante, y de manera independiente entre eventos.
+
+## Modelos lineales generalizados
+
+Por ejemplo, pensad en alguien que salga a menudo al campo a observar aves, y anote el tiempo que tarda entre cada observación. 
+
+* Podemos asumir que la tasa media de observaciones por hora es constante, porque nuestro observador siempre va a la misma zona y en la misma época del año. 
+
+* Nuestro observador, fijándose en sus notas, concluye que, de media, observa 5 aves por hora. 
+
+* Podemos preguntarnos cuál es la probabilidad de observar un número X de aves por hora, dada esta tasa media. Esto es jusamente lo que nos dice la distribución de Poisson
+
+## Modelos lineales generalizados
+
+```{r out.width="70%"}
+prob.poisson <- dpois(x = 1:10,lambda = 5)
+prob.df <- data.frame(observaciones = 1:10, 
+                      prob = prob.poisson)
+ggplot(prob.df, aes(x = observaciones, y = prob)) + 
+  geom_point()
+```
+
+## Modelos lineales generalizados
+
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","poisson.png"))
+```
+
+## Modelos lineales generalizados
+
+En el ejemplo del dataset `seedlings.csv`, queremos modelar *el número de seedlings observados* en función de varios parámetros. Usando un modelo lineal generalizado con distribución Poisson, asumimos:
+
+- que el número medio de seedlings observado es constante
+- que las observaciones son independientes: observar un seedling en un punto determinado no influye en cualquier otra observación
+
+Estas asunciones pueden parecer muy restrictivas, pero son necesarias para hacer inferencia.
+
+## Modelos lineales generalizados
+
+Para ajustar un GLM Poisson, necesitamos los mismos ingredientes que para el GLM binomial:
+
+>- Distribución de la variable respuesta: **Poisson**
+>- Variables independientes (numéricas o categóricas)
+>- Función de enlace: La más común es el **logaritmo** ¿por qué? la media debe ser *positiva*!
+
+## Modelos lineales generalizados
+
+* Función de enlace para GLM Poisson:
+
+\begin{gather}
+ln(\mu_i) = a + b \cdot x_i \Leftrightarrow \mu_i = e^{a + b \cdot x_i}\notag
+\end{gather}
+
+## Modelos lineales generalizados
+
+```{r out.width="80%"}
+hist(seedlings$count)
+```
+
+## Modelos lineales generalizados
+
+```{r}
+head(seedlings)
+```
+
+¿Hay relación entre el número de seedlings y la radiación solar?
+
+## Modelos lineales generalizados
+
+```{r out.width="80%"}
+ggplot(seedlings, aes(x = light, y = count)) + 
+  geom_point()
+```
+
+## Modelos lineales generalizados
+
+```{r}
+seedl.glm <- glm(count ~ light, 
+                 data = seedlings, 
+                 family = poisson)
+```
+
+## Modelos lineales generalizados
+
+```{r size="scriptsize"}
+summary(seedl.glm)
+```
+
+## Modelos lineales generalizados
+
+* Al igual que con el modelo binomial, aquí tenemos que transformar los coeficientes para interpretarlos. Los que devuelve el modelo están en escala logarítmica
+
+```{r}
+coef(seedl.glm)
+```
+
+* Les aplicamos el inverso del logaritmo: la exponencial
+
+```{r}
+exp(coef(seedl.glm))
+```
+
+El número medio de seedlings observados es `r exp(coef(seedl.glm)[1])`. Cada incremento de una unidad en radiación tiene un efecto multiplicativo de `r exp(coef(seedl.glm)[2])` sobre la media.
+
+## Modelos lineales generalizados
+
+```{r}
+summary(allEffects(seedl.glm))
+```
+
+## Modelos lineales generalizados
+
+```{r out.width="80%"}
+plot(allEffects(seedl.glm))
+```
+
+## Modelos lineales generalizados
+
+```{r out.width="80%"}
+visreg(seedl.glm, scale = "response", ylim = c(0, 7))
+points(count ~ light, data = seedlings, pch = 20)
+```
+
+## Modelos lineales generalizados
+
+* Como siempre... comprobación de residuos
+
+```{r out.width="70%", warning=FALSE, message=FALSE, results='hide'}
+DHARMa::simulateResiduals(seedl.glm, plot = TRUE)
+```
+
+## Modelos lineales generalizados
+
+* El modelo es razonable, y nos indica que *no* hay diferencias estadísticas entre la cantidad de seedlings observados con diferentes niveles de radiación.
+
+* En datos de conteos, la sobredispersión es bastante común. Podemos asegurarnos de que no es el caso, de nuevo usando el paquete `DHARMa`
+
+```{r}
+simres <- simulateResiduals(seedl.glm, 
+                            refit = TRUE)
+testDispersion(simres, plot = FALSE)
+```
+
+## Modelos lineales generalizados
+
+* Al igual que para el modelo binomial, si observamos sobredispersión en nuestro modelo podemos modificar la distribución. Para un modelo de conteos, dos opciones son la `quasipoisson` y la binomial negativa (esta última es más robusta, pero necesita la función `glm.nb` del paquete `MASS`)
+
+## Modelos lineales generalizados
+
+```{r}
+head(seedlings)
+```
+
+* ¿y si las observaciones fueron tomadas en plots de diferentes areas? Por definición, en plots de áreas más grandes (e.g. 1m²) será más probable observar seedlings que en plots más pequeños (e.g. 0.25m²).
+
+## Modelos lineales generalizados
+
+* El factor tamaño se tiene en cuenta con el argumento `offset`
+
+```{r}
+seedl.offset <- glm(count ~ light, 
+                   data = seedlings, 
+                   offset = seedlings$area)
+```
+
+## Modelos lineales generalizados
+
+Los coeficientes ahora vienen referidos *por unidad de área*
+
+```{r}
+exp(coef(seedl.offset))
+```
+
+## Modelos lineales generalizados
+
+* Otro ejemplo: número de casos de cáncer en cuatro ciudades danesas. Cada ciudad tiene un tamaño diferente, por lo que tiene sentido modelar la media de casos observados *en función del tamaño de la población*.
+
+```{r}
+cancer.data <- read.csv(here::here("datasets","cancer_data.csv"))
+head(cancer.data)
+```
+
+## Modelos lineales generalizados
+
 
 
 ## GLM
