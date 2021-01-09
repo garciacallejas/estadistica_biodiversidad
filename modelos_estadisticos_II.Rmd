@@ -630,7 +630,7 @@ testDispersion(simres, plot = FALSE)
 head(seedlings)
 ```
 
-* ¿y si las observaciones fueron tomadas en plots de diferentes areas? Por definición, en plots de áreas más grandes (e.g. 1m²) será más probable observar seedlings que en plots más pequeños (e.g. 0.25m²).
+* ¿y si las observaciones fueron tomadas en plots de diferentes areas? Por definición, en plots de áreas más grandes (e.g. 1m²) será más probable observar seedlings que en plots más pequeños (e.g. 0.25m²). Queremos modelar *seedlings observados por unidad de área*.
 
 ## Modelos lineales generalizados
 
@@ -639,8 +639,25 @@ head(seedlings)
 ```{r}
 seedl.offset <- glm(count ~ light, 
                    data = seedlings, 
-                   offset = seedlings$area)
+                   offset = log(seedlings$area), 
+                   family = poisson)
 ```
+
+## Modelos lineales generalizados
+
+* ¿Porqué `log(area)`?
+
+En vez de tener
+
+$$log(\mu_i) = a + b \cdot x_i$$
+
+ahora tenemos
+
+$$log(\frac{\mu_i}{a_i}) = a + b \cdot x_i$$
+
+lo que, reordenando, nos deja
+
+$$log(\mu_i) = log(a_i) + a + b \cdot x_i$$
 
 ## Modelos lineales generalizados
 
@@ -652,7 +669,15 @@ exp(coef(seedl.offset))
 
 ## Modelos lineales generalizados
 
-* Otro ejemplo: número de casos de cáncer en cuatro ciudades danesas. Cada ciudad tiene un tamaño diferente, por lo que tiene sentido modelar la media de casos observados *en función del tamaño de la población*.
+* Las figuras de `allEffects` se generan sin transformar los coeficientes de vuelta, cuidado
+
+```{r out.width="70%"}
+plot(allEffects(seedl.offset))
+```
+
+## Modelos lineales generalizados
+
+* Otro ejemplo: número de casos de cáncer en cuatro ciudades danesas por grupos de edad, durante cuatro años. ¿Varía el número de casos observados por grupos de edad?. Cada ciudad tiene un tamaño diferente, por lo que tiene sentido modelar la media de casos observados *en función del tamaño de la población*.
 
 ```{r}
 cancer.data <- read.csv(here::here("datasets","cancer_data.csv"))
@@ -661,15 +686,78 @@ head(cancer.data)
 
 ## Modelos lineales generalizados
 
+* Recordamos usar `family = poisson` y dar el logaritmo de la población como offset. En este caso, lo modificamos ligeramente para obtener casos *por año y por 10000 habitantes*. Recordad que los datos son de un periodo de cuatro años, por lo que 
 
+$$\frac{\mu_i * 10000/4}{pop_i} = \frac{\mu_i}{pop_i/2500}$$  
 
-## GLM
+```{r}
+canc.glm <- glm(cases ~ age, 
+                offset = log(pop/2500), 
+                data = cancer.data, 
+                family = poisson)
+```
 
->- distribuciones continuas y discretas
->- likelihood (WS p814)
->- esquema general: distribución de residuos, fórmula, función de enlace
->- regresión logística (WS p701)
->- regresión de conteos (poisson, negbin)
->- selección de modelos (AIC)
+## Modelos lineales generalizados
 
+```{r out.width="80%", warning=FALSE,message=FALSE,results='hide'}
+DHARMa::simulateResiduals(canc.glm, plot = TRUE)
+```
+
+## Modelos lineales generalizados
+
+* La variable respuesta es categórica. Recordad la interpretación
+
+```{r size="footnotesize"}
+exp(coef(canc.glm))
+```
+
+El `intercept` (a) nos dice el número de casos por año y 10000 habitantes en la categoría de referencia (40-54 años).
+
+Los coeficientes de los grupos de edad superiores van referidos a su **variación** con respecto al grupo de referencia. Por ejemplo, personas de 60-64 años tienen, en media, `r exp(coef(canc.glm)[3])` casos más de cáncer por año y 10000 habitantes que el grupo de 40-54 años.
+
+## Modelos lineales generalizados
+
+¿Son estadísticamente significativas estas diferencias? 
+
+```{r size="scriptsize"}
+summary(canc.glm)
+```
+
+## Modelos lineales generalizados
+
+¿Son estadísticamente significativas estas diferencias? 
+
+```{r}
+exp(confint(canc.glm))
+```
+
+## Modelos lineales generalizados
+
+**Otras consideraciones**
+
+>- ¿R² para GLM? No es tan sencillo como para modelos lineales. Existen aproximaciones, pero en general, no son fácilmente interpretables como un buen o mal ajuste del modelo.
+
+>- ¿otras distribuciones? Gamma (datos continuos, positivos, y asimétricos), Beta (continua, acotada entre 0 y 1)... 
+
+>- El ajuste en GLMs no se calcula por el método de mínimos cuadrados. Se calcula por el método de máxima verosimilitud (maximum likelihood). No lo estudiaremos, pero si necesitáis profundizar en el ajuste de modelos complejos, es el concepto más importante que hay que entender. Un buen sitio para empezar es el capítulo 20 de Whitlock & Schluter.
+
+## Modelos lineales generalizados
+
+**Resumen**
+
+>- Los modelos lineales generalizados (GLMs) nos permiten modelar datos que no siguen una distribución normal
+>- Las distribuciones más comunes son la binomial y la poisson, ambas discretas
+>- Los GLM necesitan además una función de enlace, para transformar las estimaciones a la distribución elegida
+>- Para interpretar los coeficientes de un GLM, por tanto, hay que deshacer la función de enlace
+>- El proceso de ajuste de un GLM es similar al de un modelo lineal: Visualización, ajuste, comprobación de residuos, interpretación
+>- Los GLM aceptan todo tipo de combinaciones de predictores: categóricos, numéricos, o interacciones entre ellos.
+
+## Modelos lineales generalizados
+
+**Recetario de R**
+
+* función para ajustar GLM: `glm(formula, data = datos, family = distribucion)`
+* comprobación de residuos: `DHARMa::simulateResiduals(modelo, plot = TRUE)`
+* comprobación de sobredispersion (también con DHARMa): `testDispersion(simulateResiduals(modelo))`
+* coeficientes: transformar con `plogis` (binomial) o con `exp` (poisson). ¡Cuidado con la interpretación!
 
