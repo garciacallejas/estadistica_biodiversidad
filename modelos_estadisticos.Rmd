@@ -128,6 +128,7 @@ knitr::include_graphics(here::here("figuras","normalidad_residuos_2.png"))
 >- variable respuesta: normal
 >- distribución de residuos: normal
 >- varianza residual: homogénea
+>- observaciones independientes entre sí
 
 ## Regresión estadística
 
@@ -150,7 +151,68 @@ knitr::include_graphics(here::here("figuras","plot_data_first.png"))
 
 ## Regresión estadística
 
-¿Hay outliers en los datos?
+* Visualizando el cuarteto de Anscombe
+
+```{r}
+aq <- datasets::anscombe
+head(aq)
+```
+
+## Regresión estadística
+
+```{r}
+p1 <- ggplot(aq,aes(x1, y1)) +
+  geom_point(color = "darkorange", size = 2.5) +
+  scale_x_continuous(breaks = seq(0,20,2)) +
+  scale_y_continuous(breaks = seq(0,12,2)) +
+  # expand_limits(x = 0, y = 0) +
+  labs(x = "x1", y = "y1",
+       title = "Dataset 1" ) +
+  geom_smooth(method = "lm") +
+  theme_bw()
+```
+
+## Regresión estadística
+
+```{r echo=FALSE}
+p2 <- ggplot(anscombe,aes(x2, y2)) +
+  geom_point(color = "darkorange", size = 2.5) +
+  scale_x_continuous(breaks = seq(0,20,2)) +
+  scale_y_continuous(breaks = seq(0,12,2)) +
+  # expand_limits(x = 0, y = 0) +
+  labs(x = "x2", y = "y2",
+       title = "Dataset 2" ) +
+  geom_smooth(method = "lm") +
+  theme_bw()
+p3 <- ggplot(anscombe,aes(x3, y3)) +
+  geom_point(color = "darkorange", size = 2.5) +
+  scale_x_continuous(breaks = seq(0,20,2)) +
+  scale_y_continuous(breaks = seq(0,12,2)) +
+  # expand_limits(x = 0, y = 0) +
+  labs(x = "x3", y = "y3",
+       title = "Dataset 3" ) +
+  geom_smooth(method = "lm") +
+  theme_bw()
+p4 <- ggplot(anscombe,aes(x4, y4)) +
+  geom_point(color = "darkorange", size = 2.5) +
+  scale_x_continuous(breaks = seq(0,20,2)) +
+  scale_y_continuous(breaks = seq(0,12,2)) +
+  # expand_limits(x = 0, y = 0) +
+  labs(x = "x4", y = "y4",
+       title = "Dataset 4" ) +
+  geom_smooth(method = "lm") +
+  theme_bw()
+```
+
+```{r out.width="90%"}
+library(patchwork)
+wrap_plots(p1,p2,p3,p4)
+```
+
+
+## Regresión estadística
+
+* Volvemos a nuestros datos de árboles: ¿Hay outliers en los datos?
 
 ```{r out.width="80%"}
 ggplot(trees, aes(dbh, height)) +
@@ -428,6 +490,65 @@ p + geom_line(aes(y = lwr), color = "red", linetype = "dashed")+
 
 ## Regresión estadística
 
+Los modelos estadísticos permiten predecir datos que están fuera del rango de las observaciones... cuidado con ello...
+
+
+```{r echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics(here::here("figuras","extrapolating.png"))
+```
+
+## Regresión estadística
+
+**Recordatorio**
+
+* En general, esperamos que la *variable respuesta* tenga una distribución normal. Pero esto no siempre es necesario: es mucho más importante la distribución de los residuos, que como hemos visto nos ayudan a calcular el error asociado al modelo y los intervalos de confianza.
+
+## Regresión estadística
+
+Ejemplo con datos simulados
+
+```{r}
+Ns <- c(100,100,40)
+ms <- c(-10,44,100)
+
+x <- pmap(list(Ns,ms), function(n,m){
+  rnorm(n, mean = m, sd = 5)}) %>%
+  flatten() %>%
+  as_vector()
+
+beta <- 4
+err <- 10
+y <- rnorm(sum(Ns), beta * x, sd = err)
+df <- data.frame(x = x, y = y)
+```
+
+## Regresión estadística
+
+Ejemplo con datos simulados
+
+```{r out.width="80%",fig.align='center'}
+hist(y)
+```
+
+## Regresión estadística
+
+Ejemplo con datos simulados
+
+```{r out.width="80%",fig.align='center'}
+ggplot(df, aes(x = x, y = y)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+```
+
+## Regresión estadística
+
+```{r out.width="80%",fig.align='center'}
+lm.ejemplo <- lm(y~x, data = df)
+hist(resid(lm.ejemplo))
+```
+
+## Regresión estadística
+
 Pasos en la elaboración de modelos estadísticos
 
 >- Análisis exploratorio y visualización
@@ -699,6 +820,17 @@ summary(m3)$adj.r.squared
 
 ## Regresión estadística
 
+Recordemos las asunciones de los modelos lineales:
+
+* variable respuesta: normal
+* distribución de residuos: normal
+* varianza residual: homogénea
+* observaciones independientes entre sí
+
+En este caso, las observaciones entre lugares de muestreo claramente *no son* independientes entre sí (en el modelo anterior hemos observado un efecto del lugar de muestreo sobre la altura de los árboles). Por otro lado, ya sabemos que la DBH es una variable importante, así que podemos pensar en un modelo que incluya ambos factores.
+
+## Regresión estadística
+
 * Combinando predictores categóricos y numéricos: ¿Varía la altura de los árboles en función de su DBH y el lugar de muestreo?
 
 ```{r}
@@ -734,6 +866,39 @@ knitr::include_graphics(here::here("figuras","trees_site_intercept.png"))
 
 ## Regresión estadística
 
+```{r eval=FALSE}
+trees$fitted.m4 <- fitted(m4)
+ggplot(trees ,aes(x=dbh,y=height))+
+  geom_point(show.legend = FALSE,shape = 21, fill = "white") +
+  facet_wrap(~site)+
+  geom_abline(aes(intercept = coef(m1)[[1]], 
+                  slope = coef(m1)[[2]],
+                  color = 'black'),size = 1) + 
+  geom_line(aes(x=dbh,y=fitted.m4, color = "darkred"),size=1)+
+  scale_color_identity(labels=c("height ~ dbh",
+                                "height ~ dbh + site"), 
+                       guide="legend")+
+  labs(x = "dbh",y = "tree height",color="Model fit") + 
+  theme_bw()
+```
+
+## Regresión estadística
+
+```{r echo=FALSE, out.width="99%"}
+trees$fitted.m4 <- fitted(m4)
+ggplot(trees ,aes(x=dbh,y=height))+
+  geom_point(show.legend = FALSE,shape = 21, fill = "white") +
+  facet_wrap(~site)+
+  geom_abline(aes(intercept = coef(m1)[[1]], slope = coef(m1)[[2]],
+                  color = 'black'),size = 1) + 
+  geom_line(aes(x=dbh,y=fitted.m4, color = "darkred"),size=1)+
+  scale_color_identity(labels=c("height ~ dbh","height ~ dbh + site"), guide="legend")+
+  labs(x = "dbh",y = "tree height",color="Model fit") + 
+  theme_bw()
+```
+
+## Regresión estadística
+
 * Hemos ajustado un modelo con diferentes puntos de corte (uno por cada *site*) y una sola pendiente (DBH)
 
 >- ¿varía la relación altura-DBH ( = la pendiente) entre diferentes lugares de muestreo?
@@ -761,15 +926,33 @@ summary(m5)
 
 ## Regresión estadística
 
+Interpretar coeficientes en modelos con interacciones sigue la misma filosofía que hemos visto en modelos más sencillos: 
+
+* El punto de corte representa la categoría base: para DBH 0, en en site 1, la altura esperada es `r coef(m5)[1]` (lo cual tiene poco sentido biológico). Igualmente, el efecto asociado a dbh nos da la pendiente de la recta para el site 1 (una unidad de DBH aumenta la altura en `r coef(m5)[11]`)
+
+* Los efectos asociados a sites (site2,site3,etc) nos dan la diferencia en altura, para DBH = 0, con respecto al site 1 (categoría base). Por ejemplo, los árboles de DBH = 0 en el site 2 tienen una altura esperada de `r coef(m5)[1]` + `r coef(m5)[2]`.
+
+* Los efectos compuestos, por ejemplo site2:dbh, nos dicen la diferencia en el efecto de la DBH con respecto al efecto base para cada site. Por ejemplo, el efecto de aumentar una unidad de DBH en el site 2 es de `r coef(m5)[11]` + `r coef(m5)[12]`.
+
+## Regresión estadística
+
 ```{r out.width="90%"}
 visreg(m5, xvar = "dbh", by = "site")
 ```
 
 ## Regresión estadística
 
+Otros puntos a tener en cuenta:
+
+>- Las variables independientes no deben estar correlacionadas entre sí. Cuando ajustamos modelos con múltiples variables numéricas, es importante comprobar previamente la correlación entre ellas (ver sección *test de hipótesis*) y eliminar las variables correlacionadas.
+>- Un modelo lineal en el que la variable independiente es categórica con varios factores es equivalente a una ANOVA (ver, por ejemplo, [aquí](https://bookdown.org/steve_midway/DAR/understanding-anova-in-r.html))
+>- A veces puede ser importante centrar y/o estandarizar las variables independientes. Ver, por ejemplo, discusión [aquí](https://stats.stackexchange.com/questions/29781/when-conducting-multiple-regression-when-should-you-center-your-predictor-varia)
+
+## Regresión estadística
+
 **Resumen de modelos lineales**
 
->- permiten predecir una variable respuesta en función de otras independientes
+>- permiten predecir una variable respuesta en función de variables independientes
 >- modelan *relaciones lineales*
 >- son la base para muchas de las técnicas estadísticas que trabajaréis
 

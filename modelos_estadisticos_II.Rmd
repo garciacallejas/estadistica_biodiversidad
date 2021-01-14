@@ -743,6 +743,12 @@ exp(confint(canc.glm))
 
 ## Modelos lineales generalizados
 
+**Otras extensiones de los modelos lineales: modelos lineales mixtos**
+
+* Permiten modelar diseños experimentales más complejos (e.g. diferentes sitios de muestreo por hábitat), y pueden incorporar todas las ventajas de los modelos lineales generalizados. Referencias: [artículo introductorio](https://peerj.com/articles/4794/), [libro](https://highstat.com/index.php/beginner-s-guide-to-glm-and-glmm)
+
+## Modelos lineales generalizados
+
 **Resumen**
 
 >- Los modelos lineales generalizados (GLMs) nos permiten modelar datos que no siguen una distribución normal

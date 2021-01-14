@@ -43,6 +43,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
   - ¿se puede predecir la longitud de pétalo de una flor (petal length) a partir de su anchura (petal width)?
   - ¿la relación entre longitud y anchura de pétalo es igual o diferente para las tres especies de Iris?
+  - ¿cuál es la longitud media esperada de pétalos que tengan anchura 2.6? ¿y su intervalo de confianza?
 
 * Considera el conjunto de datos `starwars_info_personajes.csv`.
 
