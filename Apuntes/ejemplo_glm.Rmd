@@ -1,0 +1,100 @@
+---
+title: "ejemplo glm"
+author: "david"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ejemplo GLM
+
+Este archivo es un ejemplo de análisis de datos con un modelo lineal generalizado.
+
+- Primero, copiamos los datos a la misma carpeta donde guardemos el archivo .Rmd
+- Ahora, leemos los datos
+
+```{r}
+tit <- read.csv("titanic_long.csv")
+head(tit)
+```
+
+- Visualizamos los datos
+
+```{r}
+table(tit$class)
+```
+
+```{r}
+table(tit$survived)
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+ggplot(tit,aes(x = survived)) + 
+  geom_bar() + 
+  facet_grid(.~class) +
+  scale_x_continuous(breaks = c(0,1))
+```
+
+- ajustar el modelo
+
+```{r}
+m1 <- glm(survived ~ class, 
+          data = tit,
+          family = "binomial")
+
+summary(m1)
+```
+
+- comprobar los residuos
+
+```{r message=FALSE, warning=FALSE}
+library(DHARMa)
+simulateResiduals(m1,plot = TRUE)
+```
+
+- el modelo es razonable, así que interpretamos los coeficientes
+
+```{r message=FALSE,warning=FALSE}
+library(effects)
+allEffects(m1)
+```
+
+- visualizamos los efectos
+
+```{r message=FALSE}
+plot(allEffects(m1))
+```
+
+- mostramos una tabla con todos los coeficientes del modelo
+
+```{r message=FALSE}
+library(broom)
+knitr::kable(tidy(m1))
+```
+
+Ejecutamos una regresión logística con función de enlace logit, sobre 2201 observaciones, en la que analizamos la probabilidad de supervivencia en función de la clase de los pasajeros.
+
+Los pasajeros de primera clase tienen una probabilidad de supervivencia de 0.67.
+
+Podemos incluir imágenes externas
+
+```{r}
+knitr::include_graphics("titanic.jpg")
+```
+
+NOTA:
+
+- Para abrir los archivos asociados al trabajo, usad
+
+`read.csv("nombre-apellido.txt",sep = " ")`
+
+- otras funciones 
+
+`table(ej$rio)`
+
+`rio1 <- subset(ej,rio == "Corumbel")`
+
+`table(rio1$enfermo)`
