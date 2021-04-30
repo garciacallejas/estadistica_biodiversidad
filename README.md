@@ -14,4 +14,5 @@ En la carpeta "Apuntes" están disponibles las transparencias de cada tema:
 * Análisis reproducibles con R y Rmarkdown
 
 A su vez, también está disponible el ejercicio de evaluación.
+
 Para descargar todos los materiales en un solo archivo comprimido: Botón "Code" -> "Download ZIP"
