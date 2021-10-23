@@ -1,13 +1,13 @@
 multivariate analysis
 ========================================================
-author: I. Bartomeus
-date: January 2021
+author: David Garcia Callejas
+date: October 2021
 autosize: true
 
 PCA
 ========================================================
 
-Is used to summarize the information contained in a continuous (i.e, quantitative) multivariate data by reducing the dimensionality of the data without loosing important information.
+Is used to summarize the information contained in a continuous (i.e, quantitative) multivariate data by reducing the dimensionality of the data without losing important information.
 
 - plotting: http://www.sthda.com/english/rpkgs/factoextra/
 
