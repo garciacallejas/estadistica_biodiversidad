@@ -165,14 +165,30 @@ vegdist(Herb_community[c(1,13),], "horn")
 Herb_community.mds <- metaMDS(comm = Herb_community,
                               distance = "bray",
                               trace = FALSE, autotransform = FALSE)
+
 #Herb_community.mds <- metaMDS(v) #idem
+Habitat <- as.factor(Habitat)
 plot(Herb_community.mds$points, col = Habitat, pch = 16)
 
 Habitat.uni <- unique(Habitat)
 legend(x = -2.5, y = -1.5, Habitat.uni, pch=16, col = 1:5, cex = 0.8)
 
+DayNight <- as.factor(DayNight)
 plot(Herb_community.mds$points, col = DayNight, pch = 16)
 legend(x = -2.5, y = -1.5, c("Day","Night"), pch=16, col = 1:5, cex = 0.8)
+
+# nicer plot
+# extract scores
+nmds.scores <- as.data.frame(scores(Herb_community.mds))
+nmds.scores$habitat <- Habitat
+nmds.scores$daynight <- DayNight
+
+# plot
+nmds.plot <- ggplot(nmds.scores, aes(x = NMDS1,y = NMDS2)) + 
+  geom_point(aes(color = habitat, shape = daynight), size = 2) + 
+  theme_bw() +
+  NULL
+nmds.plot
 
 #assumptions:
 Herb_community.mds$stress
